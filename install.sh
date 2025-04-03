@@ -60,6 +60,14 @@ chmod +x lib/log-analyzer.rb
 
 # Create symlinks
 echo "Creating symlinks..."
+# Create lib directory in ~/.local if it doesn't exist
+mkdir -p "$HOME/.local/lib"
+
+# Symlink the actual library files
+ln -sf "$(pwd)/lib/pomodoro-timer.rb" "$HOME/.local/lib/pomodoro-timer.rb"
+ln -sf "$(pwd)/lib/log-analyzer.rb" "$HOME/.local/lib/log-analyzer.rb"
+
+# Symlink the bin files
 ln -sf "$(pwd)/bin/pomodoro" "$HOME/.local/bin/pomodoro"
 ln -sf "$(pwd)/bin/pomodoro_analyze" "$HOME/.local/bin/pomodoro_analyze"
 
