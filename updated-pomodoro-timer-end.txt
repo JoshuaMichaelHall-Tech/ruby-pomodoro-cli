@@ -1,9 +1,0 @@
-    puts "\n----------------------------------------"
-    puts "🎉 Great work today! You completed #{session_count} pomodoro sessions."
-    puts "Your progress has been logged to: #{log_file}"
-    puts "----------------------------------------"
-    
-    # Clean up status file
-    status_file = File.join(Dir.home, '.pomodoro_current')
-    File.write(status_file, "No pomodoro")
-  end
