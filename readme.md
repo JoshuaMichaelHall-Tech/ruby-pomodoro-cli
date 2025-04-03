@@ -1,6 +1,12 @@
-# Terminal Pomodoro Timer
+# Ruby Pomodoro CLI
 
-A simple, command-line based Pomodoro timer that tracks your work sessions and provides detailed logging for productivity analysis.
+A terminal-based Pomodoro timer with session tracking and productivity analytics. Integrates with tmux and terminal-centric workflows.
+
+## Learning Objectives
+- Implement effective CLI design in Ruby
+- Practice object-oriented programming principles
+- Develop productivity tracking and analytics tools
+- Create seamless terminal environment integration
 
 ## Features
 
@@ -10,31 +16,68 @@ A simple, command-line based Pomodoro timer that tracks your work sessions and p
 - **Analytics**: Generates summaries and statistics from your session logs
 - **Terminal Integration**: Designed for terminal-centric workflows with macOS/Linux
 
+## Technology Stack
+- Language: Ruby 3.0+
+- Dependencies: Standard library only (csv, date, fileutils, io/console, optparse)
+- Environment: zsh, tmux
+
+## Project Structure
+```
+ruby-pomodoro-cli/
+├── lib/                    # Core functionality
+│   ├── pomodoro-timer.rb   # The main Pomodoro timer
+│   └── log-analyzer.rb     # Analytics utility
+├── bin/                    # Executable scripts
+│   ├── pomodoro            # Runner for timer
+│   └── pomodoro_analyze    # Runner for log analyzer
+├── install.sh              # Installation script
+├── LICENSE                 # MIT License
+├── .gitignore              # Git ignore file
+├── ISSUE_TEMPLATE.md       # Template for GitHub issues
+├── PULL_REQUEST_TEMPLATE.md# Template for pull requests
+└── README.md               # This file
+```
+
 ## Installation
 
 1. Clone this repository:
-```
-git clone https://github.com/your-username/terminal-pomodoro.git
-cd terminal-pomodoro
-```
-
-2. Make the scripts executable:
-```
-chmod +x pomodoro.rb
-chmod +x pomodoro_analyze.rb
+```zsh
+git clone https://github.com/joshuamichaelhall-tech/ruby-pomodoro-cli.git
+cd ruby-pomodoro-cli
 ```
 
-3. Optionally, create symlinks to add the commands to your path:
+2. Run the installation script:
+```zsh
+chmod +x install.sh
+./install.sh
 ```
-ln -s "$(pwd)/pomodoro.rb" /usr/local/bin/pomodoro
-ln -s "$(pwd)/pomodoro_analyze.rb" /usr/local/bin/pomodoro_analyze
+
+3. Or manually install:
+```zsh
+# Create bin directory if it doesn't exist
+mkdir -p bin
+
+# Create runner scripts
+echo '#!/usr/bin/env ruby
+require_relative "../lib/pomodoro-timer"' > bin/pomodoro
+
+echo '#!/usr/bin/env ruby
+require_relative "../lib/log-analyzer"' > bin/pomodoro_analyze
+
+# Make executables
+chmod +x bin/pomodoro bin/pomodoro_analyze
+
+# Create symlinks
+mkdir -p ~/.local/bin
+ln -sf "$(pwd)/bin/pomodoro" ~/.local/bin/pomodoro
+ln -sf "$(pwd)/bin/pomodoro_analyze" ~/.local/bin/pomodoro_analyze
 ```
 
 ## Usage
 
 ### Starting a Pomodoro Session
 
-```
+```zsh
 pomodoro [options]
 ```
 
@@ -47,7 +90,7 @@ Options:
 
 ### Analyzing Your Logs
 
-```
+```zsh
 pomodoro_analyze [options]
 ```
 
@@ -81,7 +124,7 @@ The summary CSV contains:
 
 Add this to your `.zshrc` to create a convenient alias:
 
-```
+```zsh
 # Pomodoro timer alias
 alias pom='pomodoro'
 alias poma='pomodoro_analyze'
@@ -96,6 +139,29 @@ Add this to your `.tmux.conf` to show your current Pomodoro status in the tmux s
 set -g status-right "#[fg=green]#(cat ~/.pomodoro_current 2>/dev/null || echo 'No pomodoro')#[default] | %H:%M"
 ```
 
+## Development Process
+
+This project implements a mastery-based approach to Ruby development, focusing on:
+
+1. Object-oriented design principles
+2. Command-line interface best practices
+3. File I/O and data persistence
+4. Integration with terminal workflow tools
+
+The tool is designed to be minimalist yet powerful, with a focus on terminal-centric workflows using zsh and tmux.
+
+## Related Repositories
+
+- [devenv-tmux-config](https://github.com/joshuamichaelhall-tech/devenv-tmux-config) - This uses development tools from my tmux configuration
+- [ruby-fundamentals](https://github.com/joshuamichaelhall-tech/ruby-fundamentals) - Core Ruby concepts that support this project
+
+## Future Work
+
+- Add RSpec tests for core functionality
+- Create a visualization tool for productivity trends
+- Implement integrations with task management systems
+- Add support for different Pomodoro techniques
+
 ## License
 
-MIT
+[MIT License](LICENSE)

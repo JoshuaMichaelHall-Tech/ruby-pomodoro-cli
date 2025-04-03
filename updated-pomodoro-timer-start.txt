@@ -1,0 +1,21 @@
+  def start
+    # Initialize status file for tmux integration
+    status_file = File.join(Dir.home, '.pomodoro_current')
+    File.write(status_file, "🍅 Starting")
+    
+    puts "\n🍅 Welcome to the Pomodoro Timer 🍅"
+    puts "----------------------------------------"
+    puts "Work time: #{format_time(work_time)}"
+    puts "Break time: #{format_time(break_time)}"
+    puts "Long break time: #{format_time(long_break_time)}"
+    puts "Sessions before long break: #{sessions_before_long_break}"
+    puts "----------------------------------------"
+    
+    # Get project/course information at the start of the day
+    print "\nWhat project/course are you working on today? "
+    project = gets.chomp
+    
+    session_count = 0
+    continue = true
+    
+    while continue
