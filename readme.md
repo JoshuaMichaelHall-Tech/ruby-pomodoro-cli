@@ -122,7 +122,7 @@ The summary CSV contains:
 
 ### ZSH Configuration
 
-Add this to your `.zshrc` to create a convenient alias:
+Add this to your `.zshrc` to create a convenient alias if you used manual install (install.sh adds this automatically!):
 
 ```zsh
 # Pomodoro timer alias
@@ -132,7 +132,7 @@ alias poma='pomodoro_analyze'
 
 ### Tmux Integration
 
-Add this to your `.tmux.conf` to show your current Pomodoro status in the tmux status bar:
+Add this to your `.tmux.conf` to show your current Pomodoro status in the tmux status bar if you used manual install (install.sh adds this automatically!):
 
 ```
 # Pomodoro status in tmux
