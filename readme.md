@@ -152,8 +152,7 @@ The tool is designed to be minimalist yet powerful, with a focus on terminal-cen
 
 ## Related Repositories
 
-- [devenv-tmux-config](https://github.com/joshuamichaelhall-tech/devenv-tmux-config) - This uses development tools from my tmux configuration
-- [ruby-fundamentals](https://github.com/joshuamichaelhall-tech/ruby-fundamentals) - Core Ruby concepts that support this project
+- [terminal-setup](https://https://github.com/JoshuaMichaelHall-Tech/terminal-setup) - A highly customized terminal-based development environment using Zsh, Neovim, tmux, and command-line tools optimized for software engineering workflows.
 
 ## Future Work
 
