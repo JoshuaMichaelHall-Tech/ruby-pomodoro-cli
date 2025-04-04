@@ -48,6 +48,8 @@ class PomodoroTimer
     puts "Long break time: #{format_time(long_break_time)}"
     puts "Sessions before long break: #{sessions_before_long_break}"
     puts "----------------------------------------"
+    puts "Controls: p = pause/resume, s = skip (break only), q = quit"
+    puts "----------------------------------------"
     
     # Get project/course information at the start of the day
     print "\nWhat project/course are you working on today? "
@@ -66,11 +68,20 @@ class PomodoroTimer
       puts "\n----------------------------------------"
       puts "🍅 Starting session ##{session_count} (#{format_time(work_time)})"
       puts "Project: #{project}"
+      puts "Controls: p = pause/resume, q = quit"
       puts "----------------------------------------"
       
       # Run the timer for work session
       start_time = Time.now
-      run_timer(work_time)
+      elapsed_time = run_timer(work_time, :work)
+      
+      # If the timer was quit prematurely, ask if user wants to continue
+      if elapsed_time < 0
+        print "\nDo you want to continue with the Pomodoro sessions? (y/n): "
+        response = gets.chomp.downcase
+        continue = (response == 'y' || response == 'yes')
+        break unless continue
+      end
       
       # Prompt for session update
       puts "\n✏️  Session ##{session_count} complete!"
@@ -78,7 +89,8 @@ class PomodoroTimer
       update = gets.chomp
       
       # Log the session
-      log_session(project, session_count, (Time.now - start_time).to_i, update)
+      actual_duration = (elapsed_time < 0) ? (Time.now - start_time).to_i : elapsed_time
+      log_session(project, session_count, actual_duration, update)
       
       # Determine break type and time
       break_duration = is_long_break ? long_break_time : break_time
@@ -86,12 +98,23 @@ class PomodoroTimer
       
       puts "\n----------------------------------------"
       puts "🕑 Starting #{break_type} (#{format_time(break_duration)})"
+      puts "Controls: p = pause/resume, s = skip, q = quit"
       puts "----------------------------------------"
       
       # Run the timer for break
-      run_timer(break_duration)
+      break_result = run_timer(break_duration, :break)
       
-      puts "\n✅ Break complete!"
+      # Handle break result
+      if break_result == :skipped
+        puts "\n⏩ Break skipped!"
+      elsif break_result < 0
+        print "\nDo you want to continue with the Pomodoro sessions? (y/n): "
+        response = gets.chomp.downcase
+        continue = (response == 'y' || response == 'yes')
+        break unless continue
+      else
+        puts "\n✅ Break complete!"
+      end
       
       # Ask if the user wants to continue
       print "Continue with another session? (y/n): "
@@ -110,31 +133,80 @@ class PomodoroTimer
   
   private
   
-  def run_timer(duration)
+  def run_timer(duration, type = :work)
     end_time = Time.now + duration
     status_file = File.join(Dir.home, '.pomodoro_current')
     
+    # Variables for pause functionality
+    paused = false
+    pause_start = nil
+    total_pause_time = 0
+    
     while Time.now < end_time
-      remaining = (end_time - Time.now).to_i
+      # Calculate current remaining time considering pauses
+      current_time = Time.now
+      if paused
+        # When paused, we don't update the end_time yet, just show frozen time
+        remaining = (end_time - current_time).to_i - total_pause_time
+      else
+        remaining = (end_time - current_time).to_i
+      end
+      
       mins, secs = remaining.divmod(60)
       
+      # Create status line with controls
+      status_line = paused ? 
+        "⏸️  #{mins.to_s.rjust(2, '0')}:#{secs.to_s.rjust(2, '0')} PAUSED | p = resume, q = quit" :
+        "⏱️  #{mins.to_s.rjust(2, '0')}:#{secs.to_s.rjust(2, '0')} remaining | p = pause"
+      
+      if type == :break && !paused
+        status_line += ", s = skip"
+      end
+      
+      status_line += ", q = quit"
+      
       # Update status file for tmux integration
-      File.write(status_file, "🍅 #{mins.to_s.rjust(2, '0')}:#{secs.to_s.rjust(2, '0')}")
+      if paused
+        File.write(status_file, "🍅 ⏸️ PAUSED")
+      else
+        File.write(status_file, "🍅 #{mins.to_s.rjust(2, '0')}:#{secs.to_s.rjust(2, '0')}")
+      end
       
-      # Clear line and print remaining time
-      print "\r⏱️  #{mins.to_s.rjust(2, '0')}:#{secs.to_s.rjust(2, '0')} remaining"
+      # Clear line and print status
+      print "\r" + " " * 80 # Clear the line with spaces
+      print "\r#{status_line}"
       
-      # Add a way to pause or stop the timer
+      # Check for key input
       if IO.select([STDIN], nil, nil, 0)
-        key = STDIN.getch
-        if key == 'q'
-          puts "\nTimer stopped."
+        key = STDIN.getch.downcase
+        
+        case key
+        when 'p' # Pause/resume
+          if paused
+            # Resume timer
+            paused = false
+            total_pause_time += (Time.now - pause_start).to_i
+            puts "\n▶️  Timer resumed"
+          else
+            # Pause timer
+            paused = true
+            pause_start = Time.now
+            puts "\n⏸️  Timer paused - press 'p' to resume, 'q' to quit"
+          end
+        when 's' # Skip (break only)
+          if type == :break && !paused
+            puts "\n⏩ Skipping break!"
+            return :skipped
+          end
+        when 'q' # Quit
+          puts "\n⏹️  Timer stopped."
           File.write(status_file, "No pomodoro")
-          break
+          return -1 # Return a negative value to indicate quit
         end
       end
       
-      sleep 1
+      # Skip the sleep if paused
+      sleep 1 unless paused
     end
     
     # Reset status file
@@ -142,6 +214,9 @@ class PomodoroTimer
     
     # Play a sound to notify the user when the time is up
     puts "\n\a" # Terminal bell
+    
+    # Return the actual duration accounting for pauses
+    (duration - total_pause_time)
   end
   
   def log_session(project, session_number, duration, update)

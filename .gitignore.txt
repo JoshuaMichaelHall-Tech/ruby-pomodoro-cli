@@ -22,11 +22,14 @@ Gemfile.lock
 .ruby-version
 .ruby-gemset
 
-# CSV log files
+# Pomodoro data - ensure no user data is ever committed
 *.csv
-
-# Generated reports
+logs/
+/data/
 pomodoro_summary.csv
+.pomodoro_current
+.pomodoro_logs/
+**/.pomodoro_logs/
 
 # macOS system files
 .DS_Store
@@ -47,6 +50,3 @@ desktop.ini
 # Vim
 .*.swp
 .*.swo
-
-# Pomodoro specific
-.pomodoro_current

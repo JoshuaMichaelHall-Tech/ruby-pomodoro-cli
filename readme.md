@@ -1,5 +1,7 @@
 # Ruby Pomodoro CLI
 
+**⚠️ DISCLAIMER: This is a work in progress. I am still working out bugs and refining the configuration. Use at your own risk and please report any issues you encounter.**
+
 A terminal-based Pomodoro timer with session tracking and productivity analytics. Integrates with tmux and terminal-centric workflows.
 
 ## Learning Objectives
@@ -15,6 +17,10 @@ A terminal-based Pomodoro timer with session tracking and productivity analytics
 - **Daily Logs**: Automatically creates date-based logs for easy tracking
 - **Analytics**: Generates summaries and statistics from your session logs
 - **Terminal Integration**: Designed for terminal-centric workflows with macOS/Linux
+- **Pause & Resume**: Pause any timer session or break with a simple keystroke
+- **Skip Breaks**: Option to skip break periods when you're in a flow state
+- **Session Control**: Easy-to-use keyboard controls displayed directly in the interface
+- **Privacy Controls**: Generate shareable statistics without exposing personal task details
 
 ## Technology Stack
 - Language: Ruby 3.0+
@@ -31,6 +37,8 @@ ruby-pomodoro-cli/
 │   ├── pomodoro            # Runner for timer
 │   └── pomodoro_analyze    # Runner for log analyzer
 ├── install.sh              # Installation script
+├── uninstall.sh            # Uninstallation script
+├── update.sh               # Update script
 ├── LICENSE                 # MIT License
 ├── .gitignore              # Git ignore file
 ├── ISSUE_TEMPLATE.md       # Template for GitHub issues
@@ -38,39 +46,80 @@ ruby-pomodoro-cli/
 └── README.md               # This file
 ```
 
-## Installation
+## Installation and Management
 
-1. Clone this repository:
+### Installation
+
+The Pomodoro CLI includes a robust installation system that handles first-time installations and updates:
+
 ```zsh
+# Clone the repository
 git clone https://github.com/joshuamichaelhall-tech/ruby-pomodoro-cli.git
 cd ruby-pomodoro-cli
-```
 
-2. Run the installation script:
-```zsh
+# Make the install script executable
 chmod +x install.sh
+
+# Run the installation
 ./install.sh
 ```
 
-3. Or manually install:
+The installation script:
+- Creates necessary directories
+- Sets up executable files
+- Creates symlinks to make the commands available system-wide
+- Adds convenient aliases to your `.zshrc`
+- Integrates with tmux if available
+- Preserves any existing configurations
+
+### Updating
+
+To check for and apply updates:
+
 ```zsh
-# Create bin directory if it doesn't exist
-mkdir -p bin
+# Navigate to your installation directory
+cd path/to/ruby-pomodoro-cli
 
-# Create runner scripts
-echo '#!/usr/bin/env ruby
-require_relative "../lib/pomodoro-timer"' > bin/pomodoro
+# Make the update script executable (first time only)
+chmod +x update.sh
 
-echo '#!/usr/bin/env ruby
-require_relative "../lib/log-analyzer"' > bin/pomodoro_analyze
+# Run the updater
+./update.sh
+```
 
-# Make executables
-chmod +x bin/pomodoro bin/pomodoro_analyze
+The update script:
+- Checks if new versions are available
+- Pulls the latest changes from the repository
+- Runs the installer to apply updates
+- Preserves your custom configurations
 
-# Create symlinks
-mkdir -p ~/.local/bin
-ln -sf "$(pwd)/bin/pomodoro" ~/.local/bin/pomodoro
-ln -sf "$(pwd)/bin/pomodoro_analyze" ~/.local/bin/pomodoro_analyze
+### Uninstalling
+
+If you need to remove the Pomodoro CLI:
+
+```zsh
+# Navigate to your installation directory
+cd path/to/ruby-pomodoro-cli
+
+# Make the uninstall script executable (first time only)
+chmod +x uninstall.sh
+
+# Run the uninstaller
+./uninstall.sh
+```
+
+The uninstall script:
+- Removes all symlinks and program files
+- Cleans up your `.zshrc` and tmux configuration
+- Optionally preserves your log files
+- Leaves your repository intact in case you want to reinstall later
+
+After uninstalling, you may want to remove the repository directory if you no longer need it:
+
+```zsh
+# Optional: remove the repository after uninstalling
+cd ..
+rm -rf ruby-pomodoro-cli
 ```
 
 ## Usage
@@ -88,6 +137,30 @@ Options:
 - `-s, --sessions NUMBER`: Sessions before a long break (default: 4)
 - `-h, --help`: Show help message
 
+### Keyboard Controls
+
+While a timer is running:
+- `p`: Pause or resume the current timer
+- `s`: Skip the current break (only available during breaks)
+- `q`: Quit the current timer
+
+The controls are displayed in the timer interface for easy reference.
+
+### Pausing and Resuming
+
+When you pause a timer:
+1. The countdown freezes and displays "PAUSED"
+2. The tmux status bar shows a pause indicator
+3. Press 'p' again to resume where you left off
+4. Total session duration is adjusted to account for pause time
+
+### Skipping Breaks
+
+During any break period:
+1. Press 's' to immediately end the break
+2. The next work session will start right away
+3. This feature is useful when you're in a flow state and want to continue working
+
 ### Analyzing Your Logs
 
 ```zsh
@@ -99,7 +172,55 @@ Options:
 - `-o, --output FILE`: Output file (default: pomodoro_summary.csv)
 - `-s, --start-date DATE`: Start date in YYYY-MM-DD format
 - `-e, --end-date DATE`: End date in YYYY-MM-DD format (default: today)
+- `--public-summary`: Generate a public summary without personal details
+- `--public-output FILE`: Public summary output file (default: pomodoro_public_stats.md)
 - `-h, --help`: Show help message
+
+## Privacy and Data Sharing
+
+The Pomodoro CLI is designed to respect your privacy while enabling progress tracking and collaboration:
+
+### Your Data Stays Private
+
+- **Local Storage**: All your pomodoro logs are stored locally in `~/.pomodoro_logs/` on your machine
+- **No Cloud Sync**: The application never uploads your activity data anywhere
+- **Git Protection**: The `.gitignore` file ensures logs and personal data won't be committed to Git repositories
+
+### Sharing Your Progress (Optional)
+
+If you want to share your progress publicly while keeping your data private:
+
+#### Option 1: Aggregated Stats Only
+```zsh
+# Generate a summary report
+pomodoro_analyze
+
+# Create a public summary (removes specific task details)
+pomodoro_analyze --public-summary
+```
+
+#### Option 2: GitHub Gist for Challenge Updates
+- Create a daily/weekly summary screenshot
+- Post it as a GitHub Gist or in your repository's wiki
+- Never share the raw CSV files with task details
+
+#### Option 3: Track Streaks in Your Repository
+Add this to your README.md:
+```markdown
+## My Pomodoro Challenge Progress
+- Current streak: 12 days
+- Total pomodoros: 147
+- Weekly average: 27
+- Last updated: April 3, 2025
+```
+
+### For Open Source Contributors
+
+If you're contributing to this project, please:
+
+1. **Never commit log files** or personal data
+2. **Keep the `.gitignore` file updated** with any new data file patterns
+3. **Respect the separation** between the application and user data
 
 ## Log Format
 
@@ -152,7 +273,7 @@ The tool is designed to be minimalist yet powerful, with a focus on terminal-cen
 
 ## Related Repositories
 
-- [terminal-setup](https://https://github.com/JoshuaMichaelHall-Tech/terminal-setup) - A highly customized terminal-based development environment using Zsh, Neovim, tmux, and command-line tools optimized for software engineering workflows.
+- [terminal-setup](https://github.com/JoshuaMichaelHall-Tech/terminal-setup) - A highly customized terminal-based development environment using Zsh, Neovim, tmux, and command-line tools optimized for software engineering workflows.
 
 ## Future Work
 

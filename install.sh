@@ -1,7 +1,8 @@
 #!/bin/zsh
-# Installation script for Ruby Pomodoro CLI
+# Improved installation script for Ruby Pomodoro CLI
+# Handles existing installations and provides update capability
 
-# Ensure we're using zsh as per user preference
+# Ensure we're using zsh
 if [ -z "$ZSH_VERSION" ]; then
   echo "This script must be run with zsh"
   exit 1
@@ -12,17 +13,31 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
+# Function to check if a line exists in a file
+line_exists() {
+  grep -Fq "$1" "$2" 2>/dev/null
+}
+
 # Check for Ruby
 if ! command_exists ruby; then
   echo "Ruby is required but not installed. Please install Ruby first."
   exit 1
 fi
 
-echo "Installing Ruby Pomodoro CLI..."
+# Define installation paths
+INSTALL_DIR="$(pwd)"
+LOG_DIR="$HOME/.pomodoro_logs"
+LOCAL_BIN="$HOME/.local/bin"
+LOCAL_LIB="$HOME/.local/lib"
+STATUS_FILE="$HOME/.pomodoro_current"
+ZSHRC="$HOME/.zshrc"
+TMUX_CONF="$HOME/.tmux.conf"
 
-# Create directory structure
-mkdir -p "$HOME/.pomodoro_logs"
-mkdir -p "$HOME/.local/bin"
+# Create required directories
+echo "Setting up directories..."
+mkdir -p "$LOG_DIR"
+mkdir -p "$LOCAL_BIN"
+mkdir -p "$LOCAL_LIB"
 
 # Check if bin directory exists, create if needed
 if [ ! -d "bin" ]; then
@@ -55,46 +70,65 @@ fi
 # Make scripts executable
 chmod +x bin/pomodoro
 chmod +x bin/pomodoro_analyze
-chmod +x lib/pomodoro-timer.rb
-chmod +x lib/log-analyzer.rb
+if [ -f "lib/pomodoro-timer.rb" ]; then
+  chmod +x lib/pomodoro-timer.rb
+fi
+if [ -f "lib/log-analyzer.rb" ]; then
+  chmod +x lib/log-analyzer.rb
+fi
 
-# Create symlinks
-echo "Creating symlinks..."
-# Create lib directory in ~/.local if it doesn't exist
-mkdir -p "$HOME/.local/lib"
+# Create/update symlinks with -f to overwrite existing ones
+echo "Creating/updating symlinks..."
+ln -sf "${INSTALL_DIR}/lib/pomodoro-timer.rb" "${LOCAL_LIB}/pomodoro-timer.rb"
+ln -sf "${INSTALL_DIR}/lib/log-analyzer.rb" "${LOCAL_LIB}/log-analyzer.rb"
+ln -sf "${INSTALL_DIR}/bin/pomodoro" "${LOCAL_BIN}/pomodoro"
+ln -sf "${INSTALL_DIR}/bin/pomodoro_analyze" "${LOCAL_BIN}/pomodoro_analyze"
 
-# Symlink the actual library files
-ln -sf "$(pwd)/lib/pomodoro-timer.rb" "$HOME/.local/lib/pomodoro-timer.rb"
-ln -sf "$(pwd)/lib/log-analyzer.rb" "$HOME/.local/lib/log-analyzer.rb"
-
-# Symlink the bin files
-ln -sf "$(pwd)/bin/pomodoro" "$HOME/.local/bin/pomodoro"
-ln -sf "$(pwd)/bin/pomodoro_analyze" "$HOME/.local/bin/pomodoro_analyze"
-
-# Check if ~/.local/bin is in PATH
+# Check if ~/.local/bin is in PATH, add if not present
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-  echo "Adding ~/.local/bin to your PATH in .zshrc"
-  echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
+  if ! line_exists 'export PATH="$HOME/.local/bin:$PATH"' "$ZSHRC"; then
+    echo "Adding ~/.local/bin to your PATH in .zshrc"
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$ZSHRC"
+  fi
 fi
 
 # Add aliases to .zshrc if they don't exist
-if ! grep -q "alias pom=" "$HOME/.zshrc"; then
+ALIAS_BLOCK=$(cat << 'EOF'
+# Pomodoro timer aliases
+alias pom="pomodoro"
+alias poma="pomodoro_analyze"
+EOF
+)
+
+if ! line_exists "alias pom=" "$ZSHRC"; then
   echo "Adding aliases to .zshrc"
-  echo '# Pomodoro timer aliases' >> "$HOME/.zshrc"
-  echo 'alias pom="pomodoro"' >> "$HOME/.zshrc"
-  echo 'alias poma="pomodoro_analyze"' >> "$HOME/.zshrc"
+  echo "$ALIAS_BLOCK" >> "$ZSHRC"
 fi
 
 # Add tmux integration if tmux is installed
 if command_exists tmux; then
-  echo "Adding tmux integration..."
+  echo "Checking tmux integration..."
   
-  # Check if the configuration already exists
-  if ! grep -q "pomodoro_current" "$HOME/.tmux.conf" 2>/dev/null; then
-    echo '# Pomodoro status in tmux' >> "$HOME/.tmux.conf"
-    echo 'set -g status-right "#[fg=green]#(cat ~/.pomodoro_current 2>/dev/null || echo \"No pomodoro\")#[default] | %H:%M"' >> "$HOME/.tmux.conf"
+  TMUX_CONFIG_LINE='set -g status-right "#[fg=green]#(cat ~/.pomodoro_current 2>/dev/null || echo \"No pomodoro\")#[default] | %H:%M"'
+  
+  # Check if the configuration already exists, add if not
+  if [ -f "$TMUX_CONF" ]; then
+    if ! line_exists "pomodoro_current" "$TMUX_CONF"; then
+      echo '# Pomodoro status in tmux' >> "$TMUX_CONF"
+      echo "$TMUX_CONFIG_LINE" >> "$TMUX_CONF"
+      echo "Added tmux integration to $TMUX_CONF"
+    else
+      echo "Tmux integration already configured"
+    fi
+  else
+    echo '# Pomodoro status in tmux' > "$TMUX_CONF"
+    echo "$TMUX_CONFIG_LINE" >> "$TMUX_CONF"
+    echo "Created $TMUX_CONF with pomodoro integration"
   fi
 fi
+
+# Create a version file to track installations
+echo "2.0.0" > "${INSTALL_DIR}/.version"
 
 echo "Installation complete!"
 echo "You can now run 'pomodoro' to start a new Pomodoro session."
