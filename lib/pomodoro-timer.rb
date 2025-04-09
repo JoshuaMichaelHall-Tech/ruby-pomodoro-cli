@@ -14,7 +14,7 @@ class PomodoroTimer
   DEFAULT_SESSIONS_BEFORE_LONG_BREAK = 4
   DEFAULT_DEEP_WORK_MODE = false
   
-  attr_reader :log_file, :work_time, :break_time, :long_break_time, :sessions_before_long_break
+  attr_reader :log_file, :work_time, :break_time, :long_break_time, :sessions_before_long_break, :deep_work_mode
 
   def initialize(options = {})
     @work_time = options[:work_time] || DEFAULT_WORK_TIME
@@ -43,15 +43,31 @@ class PomodoroTimer
     status_file = File.join(Dir.home, '.pomodoro_current')
     File.write(status_file, "🍅 Starting")
     
-    puts "\n🍅 Welcome to the Pomodoro Timer 🍅"
-    puts "----------------------------------------"
-    puts "Work time: #{format_time(work_time)}"
-    puts "Break time: #{format_time(break_time)}"
-    puts "Long break time: #{format_time(long_break_time)}"
-    puts "Sessions before long break: #{sessions_before_long_break}"
-    puts "----------------------------------------"
-    puts "Controls: p = pause/resume, s = skip (break only), q = quit"
-    puts "----------------------------------------"
+    # Different welcome message depending on mode
+    if @deep_work_mode
+      puts "\n🧠 Welcome to the Deep Work Timer 🧠"
+      puts "----------------------------------------"
+      puts "Session format: 3 sets (First, Second, Third)"
+      puts "Each set contains:"
+      puts "- initium: 60-minute work session"
+      puts "- 5-minute break"
+      puts "- medius: 55-minute work session"
+      puts "- 10-minute break"
+      puts "- fines: 50-minute work session"
+      puts "----------------------------------------"
+      puts "Controls: p = pause/resume, s = skip (break only), q = quit"
+      puts "----------------------------------------"
+    else
+      puts "\n🍅 Welcome to the Pomodoro Timer 🍅"
+      puts "----------------------------------------"
+      puts "Work time: #{format_time(work_time)}"
+      puts "Break time: #{format_time(break_time)}"
+      puts "Long break time: #{format_time(long_break_time)}"
+      puts "Sessions before long break: #{sessions_before_long_break}"
+      puts "----------------------------------------"
+      puts "Controls: p = pause/resume, s = skip (break only), q = quit"
+      puts "----------------------------------------"
+    end
     
     # Get project/course information at the start of the day
     print "\nWhat project/course are you working on today? "
@@ -141,13 +157,7 @@ class PomodoroTimer
     # Initialize status file for tmux integration
     status_file = File.join(Dir.home, '.pomodoro_current')
     
-    puts "\n🧠 Starting Deep Work Session 🧠"
-    puts "----------------------------------------"
-    puts "Session format: 3 sets of 3 sessions each"
-    puts "Each set: 60m work, 5m break, 55m work, 10m break, 50m work"
-    puts "----------------------------------------"
-    puts "Controls: p = pause/resume, s = skip (break only), q = quit"
-    puts "----------------------------------------"
+    # We've moved the welcome message to the start method to have a consistent flow
     
     set_names = ["First", "Second", "Third"]
     session_names = ["initium", "medius", "fines"]
@@ -207,8 +217,8 @@ class PomodoroTimer
           break
         end
         
-        # Determine break type and time (5 min after initium and medius, 10 min after fines)
-        break_index = (session_index == session_names.size - 1) ? 1 : 0
+        # Determine break type and time (5 min after initium, 10 min after medius)
+        break_index = (session_index == 1) ? 1 : 0
         break_duration = break_durations[break_index]
         
         puts "\n----------------------------------------"
