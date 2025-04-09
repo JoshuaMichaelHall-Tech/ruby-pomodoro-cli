@@ -14,6 +14,7 @@ A terminal-based Pomodoro timer with session tracking and productivity analytics
 
 - **Session Tracking**: Records project information, session duration, and accomplishments
 - **Customizable Timers**: Adjust work and break durations to fit your workflow
+- **Deep Work Mode**: Structured sets of longer focused sessions for complex tasks
 - **Daily Logs**: Automatically creates date-based logs for easy tracking
 - **Analytics**: Generates summaries and statistics from your session logs
 - **Terminal Integration**: Designed for terminal-centric workflows with macOS/Linux
@@ -135,6 +136,7 @@ Options:
 - `-b, --break-time MINUTES`: Short break duration (default: 5)
 - `-l, --long-break MINUTES`: Long break duration (default: 15)
 - `-s, --sessions NUMBER`: Sessions before a long break (default: 4)
+- `-d, --deep-work`: Enable Deep Work mode (3 sets of 3 sessions)
 - `-h, --help`: Show help message
 
 ### Keyboard Controls
@@ -145,6 +147,29 @@ While a timer is running:
 - `q`: Quit the current timer
 
 The controls are displayed in the timer interface for easy reference.
+
+### Deep Work Mode
+
+The Pomodoro CLI includes a special Deep Work mode designed for extended focus sessions:
+
+```zsh
+pomodoro --deep-work
+```
+
+This mode structures your work into:
+
+- **3 Sets** (First, Second, Third)
+- **Each set consists of**:
+  - 60-minute session ("initium")
+  - 5-minute break
+  - 55-minute session ("medius")
+  - 10-minute break
+  - 50-minute session ("fines")
+
+Deep Work mode is ideal for:
+- Complex problem-solving tasks
+- Writing or coding projects requiring sustained focus
+- Learning new concepts that benefit from immersion
 
 ### Pausing and Resuming
 
@@ -289,7 +314,7 @@ This project was developed with assistance from Anthropic's Claude AI assistant,
 - Code structure suggestions
 - Troubleshooting and debugging assistance
 
-Claude was used as a development aid while all final implementation decisions and code review were performed by the human developer.
+Claude was used as a development aid while all final implementation decisions and code review were performed by Joshua Michael Hall.
 
 ## License
 

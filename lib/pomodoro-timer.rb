@@ -12,6 +12,7 @@ class PomodoroTimer
   DEFAULT_BREAK_TIME = 5 * 60
   DEFAULT_LONG_BREAK_TIME = 15 * 60
   DEFAULT_SESSIONS_BEFORE_LONG_BREAK = 4
+  DEFAULT_DEEP_WORK_MODE = false
   
   attr_reader :log_file, :work_time, :break_time, :long_break_time, :sessions_before_long_break
 
@@ -20,7 +21,8 @@ class PomodoroTimer
     @break_time = options[:break_time] || DEFAULT_BREAK_TIME
     @long_break_time = options[:long_break_time] || DEFAULT_LONG_BREAK_TIME
     @sessions_before_long_break = options[:sessions_before_long_break] || DEFAULT_SESSIONS_BEFORE_LONG_BREAK
-    
+    @deep_work_mode = options[:deep_work_mode] || DEFAULT_DEEP_WORK_MODE
+
     # Create log directory if it doesn't exist
     @log_dir = File.join(Dir.home, '.pomodoro_logs')
     FileUtils.mkdir_p(@log_dir) unless Dir.exist?(@log_dir)
@@ -55,8 +57,12 @@ class PomodoroTimer
     print "\nWhat project/course are you working on today? "
     project = gets.chomp
     
-    session_count = 0
-    continue = true
+
+    if @deep_work_mode
+      deep_work_session(project)
+    else
+      session_count = 0
+      continue = true
     
     while continue
       session_count += 1
@@ -131,6 +137,118 @@ class PomodoroTimer
     File.write(status_file, "No pomodoro")
   end
   
+    def deep_work_session(project)
+    # Initialize status file for tmux integration
+    status_file = File.join(Dir.home, '.pomodoro_current')
+    
+    puts "\n🧠 Starting Deep Work Session 🧠"
+    puts "----------------------------------------"
+    puts "Session format: 3 sets of 3 sessions each"
+    puts "Each set: 60m work, 5m break, 55m work, 10m break, 50m work"
+    puts "----------------------------------------"
+    puts "Controls: p = pause/resume, s = skip (break only), q = quit"
+    puts "----------------------------------------"
+    
+    set_names = ["First", "Second", "Third"]
+    session_names = ["initium", "medius", "fines"]
+    session_durations = [60*60, 55*60, 50*60]
+    break_durations = [5*60, 10*60]
+    
+    continue = true
+    session_count = 0
+    
+    set_names.each_with_index do |set_name, set_index|
+      break unless continue
+      
+      puts "\n----------------------------------------"
+      puts "🔄 Starting #{set_name} Set"
+      puts "----------------------------------------"
+      
+      # Run through the three sessions in this set
+      session_names.each_with_index do |session_name, session_index|
+        break unless continue
+        session_count += 1
+        
+        work_duration = session_durations[session_index]
+        
+        # Start work session
+        puts "\n----------------------------------------"
+        puts "🧠 Starting #{set_name} Set - #{session_name.capitalize} (#{format_time(work_duration)})"
+        puts "Project: #{project}"
+        puts "Controls: p = pause/resume, q = quit"
+        puts "----------------------------------------"
+        
+        # Update status file
+        File.write(status_file, "🧠 #{set_name} - #{session_name}")
+        
+        # Run the timer for work session
+        start_time = Time.now
+        elapsed_time = run_timer(work_duration, :work)
+        
+        # If the timer was quit prematurely, ask if user wants to continue
+        if elapsed_time < 0
+          print "\nDo you want to continue with the Deep Work sessions? (y/n): "
+          response = gets.chomp.downcase
+          continue = (response == 'y' || response == 'yes')
+          break unless continue
+        end
+        
+        # Prompt for session update
+        puts "\n✏️  #{set_name} Set - #{session_name.capitalize} session complete!"
+        print "What did you accomplish in this session? "
+        update = gets.chomp
+        
+        # Log the session
+        actual_duration = (elapsed_time < 0) ? (Time.now - start_time).to_i : elapsed_time
+        log_session(project, session_count, actual_duration, update)
+        
+        # Skip break after the last session of the last set
+        if set_index == set_names.size - 1 && session_index == session_names.size - 1
+          break
+        end
+        
+        # Determine break type and time (5 min after initium and medius, 10 min after fines)
+        break_index = (session_index == session_names.size - 1) ? 1 : 0
+        break_duration = break_durations[break_index]
+        
+        puts "\n----------------------------------------"
+        puts "🕑 Taking a #{break_duration / 60} minute break"
+        puts "Controls: p = pause/resume, s = skip, q = quit"
+        puts "----------------------------------------"
+        
+        # Run the timer for break
+        break_result = run_timer(break_duration, :break)
+        
+        # Handle break result
+        if break_result == :skipped
+          puts "\n⏩ Break skipped!"
+        elsif break_result < 0
+          print "\nDo you want to continue with the Deep Work sessions? (y/n): "
+          response = gets.chomp.downcase
+          continue = (response == 'y' || response == 'yes')
+          break unless continue
+        else
+          puts "\n✅ Break complete!"
+        end
+      end
+      
+      # Ask if the user wants to continue to the next set
+      if continue && set_index < set_names.size - 1
+        print "Continue with the next set? (y/n): "
+        response = gets.chomp.downcase
+        continue = (response == 'y' || response == 'yes')
+      end
+    end
+    
+    puts "\n----------------------------------------"
+    puts "🎉 Congratulations! You completed #{session_count} deep work sessions."
+    puts "Your progress has been logged to: #{log_file}"
+    puts "----------------------------------------"
+    
+    # Clean up status file
+    File.write(status_file, "No pomodoro")
+  end
+
   private
   
   def run_timer(duration, type = :work)
@@ -255,6 +373,10 @@ OptionParser.new do |opts|
   opts.on("-h", "--help", "Show help message") do
     puts opts
     exit
+  end
+
+  opts.on("-d", "--deep-work", "Enable Deep Work mode (3 sets of 3 sessions)") do
+    options[:deep_work_mode] = true
   end
 end.parse!
 
