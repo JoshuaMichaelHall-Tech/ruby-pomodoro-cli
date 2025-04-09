@@ -57,87 +57,87 @@ class PomodoroTimer
     print "\nWhat project/course are you working on today? "
     project = gets.chomp
     
-
     if @deep_work_mode
       deep_work_session(project)
     else
       session_count = 0
       continue = true
     
-    while continue
-      session_count += 1
-      
-      # Determine if this is a long break
-      is_long_break = (session_count % sessions_before_long_break == 0)
-      
-      # Start work session
-      puts "\n----------------------------------------"
-      puts "🍅 Starting session ##{session_count} (#{format_time(work_time)})"
-      puts "Project: #{project}"
-      puts "Controls: p = pause/resume, q = quit"
-      puts "----------------------------------------"
-      
-      # Run the timer for work session
-      start_time = Time.now
-      elapsed_time = run_timer(work_time, :work)
-      
-      # If the timer was quit prematurely, ask if user wants to continue
-      if elapsed_time < 0
-        print "\nDo you want to continue with the Pomodoro sessions? (y/n): "
+      while continue
+        session_count += 1
+        
+        # Determine if this is a long break
+        is_long_break = (session_count % sessions_before_long_break == 0)
+        
+        # Start work session
+        puts "\n----------------------------------------"
+        puts "🍅 Starting session ##{session_count} (#{format_time(work_time)})"
+        puts "Project: #{project}"
+        puts "Controls: p = pause/resume, q = quit"
+        puts "----------------------------------------"
+        
+        # Run the timer for work session
+        start_time = Time.now
+        elapsed_time = run_timer(work_time, :work)
+        
+        # If the timer was quit prematurely, ask if user wants to continue
+        if elapsed_time < 0
+          print "\nDo you want to continue with the Pomodoro sessions? (y/n): "
+          response = gets.chomp.downcase
+          continue = (response == 'y' || response == 'yes')
+          break unless continue
+        end
+        
+        # Prompt for session update
+        puts "\n✏️  Session ##{session_count} complete!"
+        print "What did you accomplish in this session? "
+        update = gets.chomp
+        
+        # Log the session
+        actual_duration = (elapsed_time < 0) ? (Time.now - start_time).to_i : elapsed_time
+        log_session(project, session_count, actual_duration, update)
+        
+        # Determine break type and time
+        break_duration = is_long_break ? long_break_time : break_time
+        break_type = is_long_break ? "long break" : "short break"
+        
+        puts "\n----------------------------------------"
+        puts "🕑 Starting #{break_type} (#{format_time(break_duration)})"
+        puts "Controls: p = pause/resume, s = skip, q = quit"
+        puts "----------------------------------------"
+        
+        # Run the timer for break
+        break_result = run_timer(break_duration, :break)
+        
+        # Handle break result
+        if break_result == :skipped
+          puts "\n⏩ Break skipped!"
+        elsif break_result < 0
+          print "\nDo you want to continue with the Pomodoro sessions? (y/n): "
+          response = gets.chomp.downcase
+          continue = (response == 'y' || response == 'yes')
+          break unless continue
+        else
+          puts "\n✅ Break complete!"
+        end
+        
+        # Ask if the user wants to continue
+        print "Continue with another session? (y/n): "
         response = gets.chomp.downcase
         continue = (response == 'y' || response == 'yes')
-        break unless continue
       end
-      
-      # Prompt for session update
-      puts "\n✏️  Session ##{session_count} complete!"
-      print "What did you accomplish in this session? "
-      update = gets.chomp
-      
-      # Log the session
-      actual_duration = (elapsed_time < 0) ? (Time.now - start_time).to_i : elapsed_time
-      log_session(project, session_count, actual_duration, update)
-      
-      # Determine break type and time
-      break_duration = is_long_break ? long_break_time : break_time
-      break_type = is_long_break ? "long break" : "short break"
       
       puts "\n----------------------------------------"
-      puts "🕑 Starting #{break_type} (#{format_time(break_duration)})"
-      puts "Controls: p = pause/resume, s = skip, q = quit"
+      puts "🎉 Great work today! You completed #{session_count} pomodoro sessions."
+      puts "Your progress has been logged to: #{log_file}"
       puts "----------------------------------------"
       
-      # Run the timer for break
-      break_result = run_timer(break_duration, :break)
-      
-      # Handle break result
-      if break_result == :skipped
-        puts "\n⏩ Break skipped!"
-      elsif break_result < 0
-        print "\nDo you want to continue with the Pomodoro sessions? (y/n): "
-        response = gets.chomp.downcase
-        continue = (response == 'y' || response == 'yes')
-        break unless continue
-      else
-        puts "\n✅ Break complete!"
-      end
-      
-      # Ask if the user wants to continue
-      print "Continue with another session? (y/n): "
-      response = gets.chomp.downcase
-      continue = (response == 'y' || response == 'yes')
+      # Clean up status file
+      File.write(status_file, "No pomodoro")
     end
-    
-    puts "\n----------------------------------------"
-    puts "🎉 Great work today! You completed #{session_count} pomodoro sessions."
-    puts "Your progress has been logged to: #{log_file}"
-    puts "----------------------------------------"
-    
-    # Clean up status file
-    File.write(status_file, "No pomodoro")
   end
   
-    def deep_work_session(project)
+  def deep_work_session(project)
     # Initialize status file for tmux integration
     status_file = File.join(Dir.home, '.pomodoro_current')
     
@@ -370,13 +370,13 @@ OptionParser.new do |opts|
     options[:sessions_before_long_break] = s
   end
   
+  opts.on("-d", "--deep-work", "Enable Deep Work mode (3 sets of 3 sessions)") do
+    options[:deep_work_mode] = true
+  end
+  
   opts.on("-h", "--help", "Show help message") do
     puts opts
     exit
-  end
-
-  opts.on("-d", "--deep-work", "Enable Deep Work mode (3 sets of 3 sessions)") do
-    options[:deep_work_mode] = true
   end
 end.parse!
 
