@@ -8,6 +8,6 @@
 # See the LICENSE.md file for the full license text.
 
 # Add the lib directory to the load path
-$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+$LOAD_PATH.unshift File.join(File.expand_path(File.dirname(__FILE__)), '..', 'lib')
 
 require 'pomodoro-timer'
