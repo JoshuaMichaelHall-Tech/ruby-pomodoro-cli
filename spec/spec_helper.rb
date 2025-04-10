@@ -1,24 +1,3 @@
-#!/bin/bash
-# Ruby Pomodoro CLI - A terminal-based Pomodoro timer with analytics
-# Copyright (c) 2025 Joshua Michael Hall
-# 
-# This program is released under the MIT license.
-# See the LICENSE.md file for the full license text.
-
-# Create the test directory structure
-mkdir -p spec/lib
-mkdir -p spec/bin
-mkdir -p spec/helpers
-
-# Create a .rspec configuration file
-cat > .rspec << EOF
---require spec_helper
---format documentation
---color
-EOF
-
-# Create the spec_helper.rb file
-cat > spec/spec_helper.rb << EOF
 # frozen_string_literal: true
 # 
 # Ruby Pomodoro CLI - A terminal-based Pomodoro timer with analytics
@@ -32,6 +11,21 @@ require 'timeout'
 
 # Add the lib directory to the load path
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+
+if ENV['COVERAGE'] == 'true'
+  require 'simplecov'
+  SimpleCov.start do
+    add_filter '/spec/'
+    add_filter '/vendor/'
+    
+    # Define groups for the coverage report
+    add_group 'Timer', 'lib/pomodoro-timer'
+    add_group 'Analyzer', 'lib/log-analyzer'
+  end
+  
+  # Output message to the console
+  puts "Running tests with coverage analysis..."
+end
 
 # Create a temp directory for test logs
 def setup_test_environment
@@ -50,7 +44,7 @@ RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = '.rspec_status'
 
-  # Disable RSpec exposing methods globally on \`Module\` and \`main\`
+  # Disable RSpec exposing methods globally on `Module` and `main`
   config.disable_monkey_patching!
 
   config.expect_with :rspec do |c|
@@ -66,6 +60,3 @@ RSpec.configure do |config|
     cleanup_test_environment
   end
 end
-EOF
-
-echo "Created test directory structure and configuration files."
