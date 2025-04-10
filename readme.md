@@ -1,16 +1,39 @@
 # Ruby Pomodoro CLI
 
+A powerful, terminal-based Pomodoro timer with session tracking, productivity analytics, and deep work modes. Designed for developers who prefer terminal-centric workflows with tmux integration.
+
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 **⚠️ DISCLAIMER: This is a work in progress. I am still working out bugs and refining the configuration. Use at your own risk and please report any issues you encounter.**
 
-A terminal-based Pomodoro timer with session tracking and productivity analytics. Integrates with tmux and terminal-centric workflows.
+## 📋 Table of Contents
 
-## Learning Objectives
+- [Overview](#overview)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Advanced Features](#advanced-features)
+- [Analytics](#analytics)
+- [Terminal Integration](#terminal-integration)
+- [Privacy and Data](#privacy-and-data)
+- [Development](#development)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
+
+## 🔍 Overview
+
+Ruby Pomodoro CLI is a productivity tool designed for developers who prefer a terminal-centric workflow. It implements the Pomodoro Technique - a time management method that uses focused work sessions separated by breaks - with additional features for deep work, analytics, and seamless terminal integration.
+
+### Learning Objectives
 - Implement effective CLI design in Ruby
 - Practice object-oriented programming principles
 - Develop productivity tracking and analytics tools
 - Create seamless terminal environment integration
 
-## Features
+## ✨ Features
 
 - **Session Tracking**: Records project information, session duration, and accomplishments
 - **Customizable Timers**: Adjust work and break durations to fit your workflow
@@ -23,12 +46,12 @@ A terminal-based Pomodoro timer with session tracking and productivity analytics
 - **Session Control**: Easy-to-use keyboard controls displayed directly in the interface
 - **Privacy Controls**: Generate shareable statistics without exposing personal task details
 
-## Technology Stack
-- Language: Ruby 3.0+
-- Dependencies: Standard library only (csv, date, fileutils, io/console, optparse)
-- Environment: zsh, tmux
+## 💻 Technology Stack
+- **Language**: Ruby 3.0+
+- **Dependencies**: Standard library only (csv, date, fileutils, io/console, optparse)
+- **Environment**: zsh, tmux
 
-## Project Structure
+## 📂 Project Structure
 ```
 ruby-pomodoro-cli/
 ├── lib/                    # Core functionality
@@ -40,18 +63,22 @@ ruby-pomodoro-cli/
 ├── install.sh              # Installation script
 ├── uninstall.sh            # Uninstallation script
 ├── update.sh               # Update script
-├── LICENSE                 # MIT License
+├── LICENSE.md              # MIT License
 ├── .gitignore              # Git ignore file
 ├── ISSUE_TEMPLATE.md       # Template for GitHub issues
 ├── PULL_REQUEST_TEMPLATE.md# Template for pull requests
 └── README.md               # This file
 ```
 
-## Installation and Management
+## 🚀 Installation
 
-### Installation
+### Prerequisites
+- Ruby 3.0 or higher
+- zsh shell
+- Git (for updates)
+- tmux (optional, for status integration)
 
-The Pomodoro CLI includes a robust installation system that handles first-time installations and updates:
+### Quick Install
 
 ```zsh
 # Clone the repository
@@ -63,13 +90,18 @@ chmod +x install.sh
 
 # Run the installation
 ./install.sh
+
+# Apply changes to your current session
+source ~/.zshrc
 ```
 
+### What the Installation Does
+
 The installation script:
-- Creates necessary directories
+- Creates necessary directories (`~/.pomodoro_logs`, `~/.local/bin`, `~/.local/lib`)
 - Sets up executable files
 - Creates symlinks to make the commands available system-wide
-- Adds convenient aliases to your `.zshrc`
+- Adds convenient aliases to your `.zshrc` (`pom` and `poma`)
 - Integrates with tmux if available
 - Preserves any existing configurations
 
@@ -88,12 +120,6 @@ chmod +x update.sh
 ./update.sh
 ```
 
-The update script:
-- Checks if new versions are available
-- Pulls the latest changes from the repository
-- Runs the installer to apply updates
-- Preserves your custom configurations
-
 ### Uninstalling
 
 If you need to remove the Pomodoro CLI:
@@ -109,26 +135,16 @@ chmod +x uninstall.sh
 ./uninstall.sh
 ```
 
-The uninstall script:
-- Removes all symlinks and program files
-- Cleans up your `.zshrc` and tmux configuration
-- Optionally preserves your log files
-- Leaves your repository intact in case you want to reinstall later
+The uninstall script will prompt you about keeping or removing your log files.
 
-After uninstalling, you may want to remove the repository directory if you no longer need it:
-
-```zsh
-# Optional: remove the repository after uninstalling
-cd ..
-rm -rf ruby-pomodoro-cli
-```
-
-## Usage
+## 🎮 Usage
 
 ### Starting a Pomodoro Session
 
 ```zsh
 pomodoro [options]
+# or use the alias
+pom [options]
 ```
 
 Options:
@@ -139,6 +155,15 @@ Options:
 - `-d, --deep-work`: Enable Deep Work mode (3 sets of 3 sessions)
 - `-h, --help`: Show help message
 
+### Basic Workflow
+
+1. Start a new session with `pomodoro`
+2. Enter the project/course you're working on
+3. Work until the timer ends
+4. Enter what you accomplished during the session
+5. Take a break
+6. Repeat until your work is complete
+
 ### Keyboard Controls
 
 While a timer is running:
@@ -146,14 +171,16 @@ While a timer is running:
 - `s`: Skip the current break (only available during breaks)
 - `q`: Quit the current timer
 
-The controls are displayed in the timer interface for easy reference.
+## 🧠 Advanced Features
 
 ### Deep Work Mode
 
-The Pomodoro CLI includes a special Deep Work mode designed for extended focus sessions:
+For extended focus sessions:
 
 ```zsh
 pomodoro --deep-work
+# or
+pom -d
 ```
 
 This mode structures your work into:
@@ -166,11 +193,6 @@ This mode structures your work into:
   - 10-minute break
   - 50-minute session ("fines")
 
-Deep Work mode is ideal for:
-- Complex problem-solving tasks
-- Writing or coding projects requiring sustained focus
-- Learning new concepts that benefit from immersion
-
 ### Pausing and Resuming
 
 When you pause a timer:
@@ -179,17 +201,26 @@ When you pause a timer:
 3. Press 'p' again to resume where you left off
 4. Total session duration is adjusted to account for pause time
 
-### Skipping Breaks
+### Custom Session Lengths
 
-During any break period:
-1. Press 's' to immediately end the break
-2. The next work session will start right away
-3. This feature is useful when you're in a flow state and want to continue working
+For special tasks that need different timing:
 
-### Analyzing Your Logs
+```zsh
+# 45-minute work sessions with 10-minute breaks
+pomodoro -w 45 -b 10
+
+# 30-minute work sessions with 8-minute breaks and 20-minute long breaks every 3 sessions
+pomodoro -w 30 -b 8 -l 20 -s 3
+```
+
+## 📊 Analytics
+
+Analyze your productivity patterns with the built-in log analyzer:
 
 ```zsh
 pomodoro_analyze [options]
+# or use the alias
+poma [options]
 ```
 
 Options:
@@ -201,53 +232,17 @@ Options:
 - `--public-output FILE`: Public summary output file (default: pomodoro_public_stats.md)
 - `-h, --help`: Show help message
 
-## Privacy and Data Sharing
+### Example Analytics Usage
 
-The Pomodoro CLI is designed to respect your privacy while enabling progress tracking and collaboration:
-
-### Your Data Stays Private
-
-- **Local Storage**: All your pomodoro logs are stored locally in `~/.pomodoro_logs/` on your machine
-- **No Cloud Sync**: The application never uploads your activity data anywhere
-- **Git Protection**: The `.gitignore` file ensures logs and personal data won't be committed to Git repositories
-
-### Sharing Your Progress (Optional)
-
-If you want to share your progress publicly while keeping your data private:
-
-#### Option 1: Aggregated Stats Only
 ```zsh
-# Generate a summary report
-pomodoro_analyze
+# Analyze last week's sessions
+poma -s 2025-04-01 -e 2025-04-07
 
-# Create a public summary (removes specific task details)
-pomodoro_analyze --public-summary
+# Generate a shareable summary without personal details
+poma --public-summary
 ```
 
-#### Option 2: GitHub Gist for Challenge Updates
-- Create a daily/weekly summary screenshot
-- Post it as a GitHub Gist or in your repository's wiki
-- Never share the raw CSV files with task details
-
-#### Option 3: Track Streaks in Your Repository
-Add this to your README.md:
-```markdown
-## My Pomodoro Challenge Progress
-- Current streak: 12 days
-- Total pomodoros: 147
-- Weekly average: 27
-- Last updated: April 3, 2025
-```
-
-### For Open Source Contributors
-
-If you're contributing to this project, please:
-
-1. **Never commit log files** or personal data
-2. **Keep the `.gitignore` file updated** with any new data file patterns
-3. **Respect the separation** between the application and user data
-
-## Log Format
+### Log Format
 
 Individual session logs are stored in `~/.pomodoro_logs/YYYY-MM-DD.csv` with the following fields:
 - Date
@@ -264,50 +259,87 @@ The summary CSV contains:
 - Average session length (minutes)
 - Updates (consolidated from all sessions)
 
-## Integration with Other Tools
+## 🖥️ Terminal Integration
 
 ### ZSH Configuration
 
-Add this to your `.zshrc` to create a convenient alias if you used manual install (install.sh adds this automatically!):
+The installation script automatically adds these to your `.zshrc`:
 
 ```zsh
-# Pomodoro timer alias
-alias pom='pomodoro'
-alias poma='pomodoro_analyze'
+# Pomodoro timer aliases
+alias pom="pomodoro"
+alias poma="pomodoro_analyze"
 ```
 
 ### Tmux Integration
 
-Add this to your `.tmux.conf` to show your current Pomodoro status in the tmux status bar if you used manual install (install.sh adds this automatically!):
+The installation script adds this to your `.tmux.conf`:
 
 ```
 # Pomodoro status in tmux
 set -g status-right "#[fg=green]#(cat ~/.pomodoro_current 2>/dev/null || echo 'No pomodoro')#[default] | %H:%M"
 ```
 
-## Development Process
+This displays your current Pomodoro status in the tmux status bar.
 
-This project implements a mastery-based approach to Ruby development, focusing on:
+## 🔒 Privacy and Data
 
-1. Object-oriented design principles
-2. Command-line interface best practices
-3. File I/O and data persistence
-4. Integration with terminal workflow tools
+### Your Data Stays Private
 
-The tool is designed to be minimalist yet powerful, with a focus on terminal-centric workflows using zsh and tmux.
+- **Local Storage**: All logs are stored locally in `~/.pomodoro_logs/`
+- **No Cloud Sync**: The application never uploads your activity data
+- **Git Protection**: The `.gitignore` file prevents logs from being committed
 
-## Related Repositories
+### Sharing Your Progress (Optional)
 
-- [terminal-setup](https://github.com/JoshuaMichaelHall-Tech/terminal-setup) - A highly customized terminal-based development environment using Zsh, Neovim, tmux, and command-line tools optimized for software engineering workflows.
+If you want to share your progress publicly while keeping your data private:
 
-## Future Work
+```zsh
+# Generate a public summary (removes specific task details)
+pomodoro_analyze --public-summary
+```
 
-- Add RSpec tests for core functionality
-- Create a visualization tool for productivity trends
-- Implement integrations with task management systems
-- Add support for different Pomodoro techniques
+This creates a `pomodoro_public_stats.md` file with:
+- Total days tracked
+- Total sessions completed
+- Total and average focus time
+- Current streak information
+- Weekly averages
+- A simple ASCII chart of recent activity
 
-## Acknowledgements
+## 🛠️ Development
+
+### Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+Please use the provided pull request template when submitting changes.
+
+### Reporting Issues
+
+Use the Issue Template provided in the repository when reporting bugs or requesting features.
+
+## 🗺️ Roadmap
+
+See the [enhancement-roadmap.md](enhancement-roadmap.md) file for planned features and improvements.
+
+Highlights include:
+- Data visualization for productivity trends
+- Task integration and tagging
+- Enhanced tmux integration
+- Interactive reports and filtering
+- Third-party API integration
+- ML-based productivity insights
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE.md](license.md) file for details.
+
+## 👏 Acknowledgements
 
 This project was developed with assistance from Anthropic's Claude AI assistant, which helped with:
 - Documentation writing and organization
@@ -315,7 +347,3 @@ This project was developed with assistance from Anthropic's Claude AI assistant,
 - Troubleshooting and debugging assistance
 
 Claude was used as a development aid while all final implementation decisions and code review were performed by Joshua Michael Hall.
-
-## License
-
-[MIT License](LICENSE)

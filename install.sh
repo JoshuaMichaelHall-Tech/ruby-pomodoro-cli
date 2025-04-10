@@ -2,6 +2,12 @@
 # Improved installation script for Ruby Pomodoro CLI
 # Handles existing installations and provides update capability
 
+# Ruby Pomodoro CLI - A terminal-based Pomodoro timer with analytics
+# Copyright (c) 2025 Joshua Michael Hall
+
+# This program is released under the MIT license.
+# See the LICENSE.md file for the full license text.
+
 # Ensure we're using zsh
 if [ -z "$ZSH_VERSION" ]; then
   echo "This script must be run with zsh"

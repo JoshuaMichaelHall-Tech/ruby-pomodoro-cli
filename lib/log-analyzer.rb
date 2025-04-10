@@ -1,6 +1,12 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# Ruby Pomodoro CLI - A terminal-based Pomodoro timer with analytics
+# Copyright (c) 2025 Joshua Michael Hall
+
+# This program is released under the MIT license.
+# See the LICENSE.md file for the full license text.
+
 require 'csv'
 require 'date'
 require 'fileutils'
