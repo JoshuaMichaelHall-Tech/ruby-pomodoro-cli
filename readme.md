@@ -41,8 +41,10 @@ Ruby Pomodoro CLI is a productivity tool designed for developers who prefer a te
 - **Daily Logs**: Automatically creates date-based logs for easy tracking
 - **Analytics**: Generates summaries and statistics from your session logs
 - **Terminal Integration**: Designed for terminal-centric workflows with macOS/Linux
+- **Immediate Key Controls**: Direct key capture for seamless control without the Enter key
 - **Pause & Resume**: Pause any timer session or break with a simple keystroke
 - **Skip Breaks**: Option to skip break periods when you're in a flow state
+- **Abort Sessions**: Cancel sessions without logging them when needed
 - **Session Control**: Easy-to-use keyboard controls displayed directly in the interface
 - **Privacy Controls**: Generate shareable statistics without exposing personal task details
 
@@ -166,8 +168,9 @@ Options:
 
 ### Keyboard Controls
 
-While a timer is running:
+While a timer is running, use the following keys for direct control (no Enter key needed):
 - `p`: Pause or resume the current timer
+- `a`: Abort the current session (no logging occurs)
 - `s`: Skip the current break (only available during breaks)
 - `q`: Quit the current timer
 
@@ -200,6 +203,19 @@ When you pause a timer:
 2. The tmux status bar shows a pause indicator
 3. Press 'p' again to resume where you left off
 4. Total session duration is adjusted to account for pause time
+
+### Aborting Sessions
+
+If you need to abort a session without logging:
+1. Press 'a' during any work or break session
+2. The session will be immediately terminated
+3. No data will be logged for the session
+4. You'll be asked if you want to continue with another session
+
+This is useful when:
+- You've been interrupted and need to start fresh
+- You accidentally started the wrong type of session
+- You need to quickly switch to a different task
 
 ### Custom Session Lengths
 
@@ -259,6 +275,10 @@ The summary CSV contains:
 - Average session length (minutes)
 - Updates (consolidated from all sessions)
 
+### Note on Aborted Sessions
+
+Aborted sessions are not recorded in the logs, providing a clean record of only your completed work. This ensures your analytics data represents your actual productive time.
+
 ## 🖥️ Terminal Integration
 
 ### ZSH Configuration
@@ -289,6 +309,7 @@ This displays your current Pomodoro status in the tmux status bar.
 - **Local Storage**: All logs are stored locally in `~/.pomodoro_logs/`
 - **No Cloud Sync**: The application never uploads your activity data
 - **Git Protection**: The `.gitignore` file prevents logs from being committed
+- **Abort Option**: Sessions can be aborted without logging any data
 
 ### Sharing Your Progress (Optional)
 
