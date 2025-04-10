@@ -243,45 +243,48 @@ class PomodoroLogAnalyzer
   end
 end
 
-# Parse command-line options
-options = {}
-OptionParser.new do |opts|
-  opts.banner = "Usage: pomodoro_analyze [options]"
-  
-  opts.on("-d", "--directory DIR", "Log directory (default: ~/.pomodoro_logs)") do |d|
-    options[:log_dir] = d
-  end
-  
-  opts.on("-o", "--output FILE", "Output file (default: pomodoro_summary.csv)") do |o|
-    options[:output_file] = o
-  end
-  
-  opts.on("-s", "--start-date DATE", "Start date in YYYY-MM-DD format") do |s|
-    options[:start_date] = s
-  end
-  
-  opts.on("-e", "--end-date DATE", "End date in YYYY-MM-DD format (default: today)") do |e|
-    options[:end_date] = e
-  end
-  
-  opts.on("--public-summary", "Generate a public summary without personal details") do
-    options[:public_summary] = true
-  end
-  
-  opts.on("--public-output FILE", "Public summary output file (default: pomodoro_public_stats.md)") do |p|
-    options[:public_output] = p
-  end
-  
-  opts.on("-h", "--help", "Show this help message") do
-    puts opts
-    exit
-  end
-end.parse!
+# Only run OptionParser when this file is being executed directly (not required in tests)
+if __FILE__ == $PROGRAM_NAME
+  # Parse command-line options
+  options = {}
+  OptionParser.new do |opts|
+    opts.banner = "Usage: pomodoro_analyze [options]"
+    
+    opts.on("-d", "--directory DIR", "Log directory (default: ~/.pomodoro_logs)") do |d|
+      options[:log_dir] = d
+    end
+    
+    opts.on("-o", "--output FILE", "Output file (default: pomodoro_summary.csv)") do |o|
+      options[:output_file] = o
+    end
+    
+    opts.on("-s", "--start-date DATE", "Start date in YYYY-MM-DD format") do |s|
+      options[:start_date] = s
+    end
+    
+    opts.on("-e", "--end-date DATE", "End date in YYYY-MM-DD format (default: today)") do |e|
+      options[:end_date] = e
+    end
+    
+    opts.on("--public-summary", "Generate a public summary without personal details") do
+      options[:public_summary] = true
+    end
+    
+    opts.on("--public-output FILE", "Public summary output file (default: pomodoro_public_stats.md)") do |p|
+      options[:public_output] = p
+    end
+    
+    opts.on("-h", "--help", "Show this help message") do
+      puts opts
+      exit
+    end
+  end.parse!
 
-# Run the analyzer
-analyzer = PomodoroLogAnalyzer.new(options)
-if options[:public_summary]
-  analyzer.generate_public_summary(options)
-else
-  analyzer.analyze
+  # Run the analyzer
+  analyzer = PomodoroLogAnalyzer.new(options)
+  if options[:public_summary]
+    analyzer.generate_public_summary(options)
+  else
+    analyzer.analyze
+  end
 end

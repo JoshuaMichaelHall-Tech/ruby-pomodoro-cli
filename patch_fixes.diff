@@ -1,0 +1,48 @@
+--- lib/pomodoro-timer.rb.original
++++ lib/pomodoro-timer.rb
+@@ -385,7 +385,7 @@
+   end
+ end
+ 
+-# Parse command-line options
++# Only run OptionParser when this file is being executed directly (not required in tests)
++if __FILE__ == $PROGRAM_NAME
+   options = {}
+   OptionParser.new do |opts|
+     opts.banner = "Usage: pomodoro [options]"
+@@ -411,5 +411,5 @@
+       puts opts
+       exit
+     end
+-  end.parse!
+-  PomodoroTimer.new(options).start
++  end.parse!
++  PomodoroTimer.new(options).start
++end
+
+--- lib/log-analyzer.rb.original
++++ lib/log-analyzer.rb
+@@ -267,7 +267,8 @@
+   end
+ end
+ 
+-# Parse command-line options
++# Only run OptionParser when this file is being executed directly (not required in tests)
++if __FILE__ == $PROGRAM_NAME
+   options = {}
+   OptionParser.new do |opts|
+     opts.banner = "Usage: pomodoro_analyze [options]"
+@@ -299,8 +300,8 @@
+-  end.parse!
++  end.parse!
+ 
+-# Run the analyzer
++  # Run the analyzer
+   analyzer = PomodoroLogAnalyzer.new(options)
+   if options[:public_summary]
+     analyzer.generate_public_summary(options)
+   else
+     analyzer.analyze
+-  end
++  end
++end

@@ -1,0 +1,22 @@
+example_id                               | status | run_time        |
+---------------------------------------- | ------ | --------------- |
+./spec/lib/log_analyzer_spec.rb[1:1:1]   | passed | 0.01313 seconds |
+./spec/lib/log_analyzer_spec.rb[1:1:2]   | passed | 0.00774 seconds |
+./spec/lib/log_analyzer_spec.rb[1:2:1]   | passed | 0.0381 seconds  |
+./spec/lib/log_analyzer_spec.rb[1:2:2]   | passed | 0.00877 seconds |
+./spec/lib/log_analyzer_spec.rb[1:2:3]   | passed | 0.01754 seconds |
+./spec/lib/log_analyzer_spec.rb[1:3:1]   | passed | 0.02292 seconds |
+./spec/lib/log_analyzer_spec.rb[1:4:1:1] | passed | 0.011 seconds   |
+./spec/lib/log_analyzer_spec.rb[1:4:1:2] | passed | 0.00932 seconds |
+./spec/lib/log_analyzer_spec.rb[1:4:1:3] | passed | 0.00967 seconds |
+./spec/lib/log_analyzer_spec.rb[1:4:1:4] | passed | 0.00823 seconds |
+./spec/lib/log_analyzer_spec.rb[1:4:2:1] | failed | 0.06688 seconds |
+./spec/lib/log_analyzer_spec.rb[1:4:2:2] | passed | 0.01168 seconds |
+./spec/lib/log_analyzer_spec.rb[1:4:2:3] | passed | 0.00883 seconds |
+./spec/lib/pomodoro_timer_spec.rb[1:1:1] | passed | 0.05018 seconds |
+./spec/lib/pomodoro_timer_spec.rb[1:1:2] | passed | 0.00071 seconds |
+./spec/lib/pomodoro_timer_spec.rb[1:1:3] | failed | 0.00069 seconds |
+./spec/lib/pomodoro_timer_spec.rb[1:2:1] | passed | 0.00578 seconds |
+./spec/lib/pomodoro_timer_spec.rb[1:3:1] | failed | 0.00573 seconds |
+./spec/lib/pomodoro_timer_spec.rb[1:4:1] | passed | 0.0008 seconds  |
+./spec/lib/pomodoro_timer_spec.rb[1:5:1] | failed | 0.01359 seconds |

@@ -26,23 +26,21 @@ RSpec.describe PomodoroTimer do
   before(:each) do
     # Stub the gets method to return predetermined values
     allow_any_instance_of(Kernel).to receive(:gets).and_return("Test Project\n", "y\n", "Added a test feature\n", "y\n")
-    
+  
     # Stub the getch method to simulate key presses
     allow(STDIN).to receive(:getch).and_return('q')
-    
+  
     # Redirect standard output
     @original_stdout = $stdout
     $stdout = StringIO.new
-    
-    # Override the log directory
-    allow_any_instance_of(PomodoroTimer).to receive(:initialize).and_wrap_original do |method, *args|
-      method.call(*args)
-      timer_instance = method.receiver
-      timer_instance.instance_variable_set(:@log_dir, test_log_dir)
-      timer_instance.instance_variable_set(:@log_file, File.join(test_log_dir, "#{Date.today.strftime('%Y-%m-%d')}.csv"))
-    end
-  end
   
+    # Create test log directory if it doesn't exist
+    FileUtils.mkdir_p(test_log_dir)
+  
+    # Instead of stubbing initialize, patch the class before each test
+    stub_const("PomodoroTimer::DEFAULT_LOG_DIR", test_log_dir)
+  end
+
   after(:each) do
     # Restore standard output
     $stdout = @original_stdout

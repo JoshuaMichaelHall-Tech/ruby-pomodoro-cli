@@ -19,6 +19,7 @@ class PomodoroTimer
   DEFAULT_LONG_BREAK_TIME = 15 * 60
   DEFAULT_SESSIONS_BEFORE_LONG_BREAK = 4
   DEFAULT_DEEP_WORK_MODE = false
+  DEFAULT_LOG_DIR = File.join(Dir.home, '.pomodoro_logs')
   
   attr_reader :log_file, :work_time, :break_time, :long_break_time, :sessions_before_long_break, :deep_work_mode
 
@@ -30,7 +31,7 @@ class PomodoroTimer
     @deep_work_mode = options[:deep_work_mode] || DEFAULT_DEEP_WORK_MODE
 
     # Create log directory if it doesn't exist
-    @log_dir = File.join(Dir.home, '.pomodoro_logs')
+    @log_dir = options[:log_dir] || DEFAULT_LOG_DIR
     FileUtils.mkdir_p(@log_dir) unless Dir.exist?(@log_dir)
     
     # Define log file path with today's date
@@ -365,36 +366,39 @@ class PomodoroTimer
   end
 end
 
-# Parse command-line options
-options = {}
-OptionParser.new do |opts|
-  opts.banner = "Usage: pomodoro [options]"
-  
-  opts.on("-w", "--work-time MINUTES", Integer, "Work session duration in minutes (default: 25)") do |w|
-    options[:work_time] = w * 60
-  end
-  
-  opts.on("-b", "--break-time MINUTES", Integer, "Short break duration in minutes (default: 5)") do |b|
-    options[:break_time] = b * 60
-  end
-  
-  opts.on("-l", "--long-break MINUTES", Integer, "Long break duration in minutes (default: 15)") do |l|
-    options[:long_break_time] = l * 60
-  end
-  
-  opts.on("-s", "--sessions NUMBER", Integer, "Number of sessions before a long break (default: 4)") do |s|
-    options[:sessions_before_long_break] = s
-  end
-  
-  opts.on("-d", "--deep-work", "Enable Deep Work mode (3 sets of 3 sessions)") do
-    options[:deep_work_mode] = true
-  end
-  
-  opts.on("-h", "--help", "Show help message") do
-    puts opts
-    exit
-  end
-end.parse!
+# Only run OptionParser when this file is being executed directly (not required in tests)
+if __FILE__ == $PROGRAM_NAME
+  # Parse command-line options
+  options = {}
+  OptionParser.new do |opts|
+    opts.banner = "Usage: pomodoro [options]"
+    
+    opts.on("-w", "--work-time MINUTES", Integer, "Work session duration in minutes (default: 25)") do |w|
+      options[:work_time] = w * 60
+    end
+    
+    opts.on("-b", "--break-time MINUTES", Integer, "Short break duration in minutes (default: 5)") do |b|
+      options[:break_time] = b * 60
+    end
+    
+    opts.on("-l", "--long-break MINUTES", Integer, "Long break duration in minutes (default: 15)") do |l|
+      options[:long_break_time] = l * 60
+    end
+    
+    opts.on("-s", "--sessions NUMBER", Integer, "Number of sessions before a long break (default: 4)") do |s|
+      options[:sessions_before_long_break] = s
+    end
+    
+    opts.on("-d", "--deep-work", "Enable Deep Work mode (3 sets of 3 sessions)") do
+      options[:deep_work_mode] = true
+    end
+    
+    opts.on("-h", "--help", "Show help message") do
+      puts opts
+      exit
+    end
+  end.parse!
 
-# Start the Pomodoro timer
-PomodoroTimer.new(options).start
+  # Start the Pomodoro timer
+  PomodoroTimer.new(options).start
+end
