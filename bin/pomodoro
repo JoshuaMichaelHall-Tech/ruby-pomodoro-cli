@@ -1,13 +1,4 @@
-#!/usr/bin/env ruby
-# frozen_string_literal: true
-
-# Ruby Pomodoro CLI - A terminal-based Pomodoro timer with analytics
-# Copyright (c) 2025 Joshua Michael Hall
-
-# This program is released under the MIT license.
-# See the LICENSE.md file for the full license text.
-
-# Add the lib directory to the load path
-$LOAD_PATH.unshift File.join(File.expand_path(File.dirname(__FILE__)), '..', 'lib')
-
-require 'pomodoro-timer'
+#!/bin/zsh
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+LIB_DIR="$SCRIPT_DIR/../lib"
+ruby "$LIB_DIR/pomodoro-timer.rb" "$@"

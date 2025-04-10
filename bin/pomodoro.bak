@@ -8,15 +8,10 @@
 # See the LICENSE.md file for the full license text.
 
 # Find the real script path even when symlinked
-script_path = File.realpath(__FILE__) rescue __FILE__
+script_path = File.realpath(__FILE__)
 lib_dir = File.expand_path('../lib', File.dirname(script_path))
-
-# Debug output - can be removed after fixing
-puts "Script path: #{script_path}"
-puts "Lib directory: #{lib_dir}"
-puts "Exists? #{File.directory?(lib_dir)}"
 
 # Add the lib directory to the load path
 $LOAD_PATH.unshift(lib_dir) unless $LOAD_PATH.include?(lib_dir)
 
-require 'log-analyzer'
+require 'pomodoro-timer'
